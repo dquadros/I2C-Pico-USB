@@ -1,9 +1,19 @@
 # I2C-Pico-USB
-An RP2040 based clone of the i2c-tiny-usb
+An RP2040 based adaptation of the i2c-tiny-usb.
 
-Attach any I2C client chip (thermo sensors, AD converter, displays, relais driver, ...) to your PC via USB ... quick, easy and cheap! Drivers for Linux, Windows and MacOS available.
+**THIS IS A WORK IN PROGRESS**
 
-The I2C-Pico-USB project is inspired by [i2c-tiny-usb by Till Harbaum](https://github.com/harbaum/I2C-Tiny-USB) and [i2c-star by Daniel Thompson](https://github.com/daniel-thompson/i2c-star). The firmware should run on any RP2040 (or RP2350) board, like the Raspberry Pi Pico anda Pico 2.
+*Actual data transfer is not implemented yet. At this stage, the device is recognized by Linux and i2c-detect works.*
+
+"Attach any I2C client chip (thermo sensors, AD converter, displays, relays driver, ...) to your PC via USB ... quick, easy and cheap! Drivers for Linux, Windows and MacOS available." (from the READ.ME file in i2c-tiny-usb). 
+
+The I2C-Pico-USB project is inspired by [i2c-tiny-usb by Till Harbaum](https://github.com/harbaum/I2C-Tiny-USB) and [i2c-star by Daniel Thompson](https://github.com/daniel-thompson/i2c-star). The firmware should run on any RP2040 (or RP2350) board, like the Raspberry Pi Pico and Pico 2.
+
+After starting this project I found a similar one from Nicolai Electronics: https://github.com/Nicolai-Electronics/rp2040-i2c-interface.
+
+Following i2c-tiny-usb, all USB transfers are done via the control endpoint.
+
+As the I2C peripheral in TP2040/RP2350 does not support zero-len transfers, I2C operations are done through bit-banging.
 
 ## Compiling the Firmware
 
@@ -30,9 +40,9 @@ You may need to fix the pins used for I2C in hardware.h.
 
 ## Hardware Setup
 
-
+TBA
 
 ## Testing and Using
 
-
+TBA
 
