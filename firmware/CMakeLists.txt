@@ -41,7 +41,7 @@ target_link_libraries(i2cpicousb PRIVATE
     tinyusb_board
 )
 
-pico_enable_stdio_uart(i2cpicousb 1)
+pico_enable_stdio_uart(i2cpicousb 0)
 
 pico_add_extra_outputs(i2cpicousb)
 

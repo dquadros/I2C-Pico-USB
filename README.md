@@ -3,7 +3,7 @@ An RP2040 based adaptation of the i2c-tiny-usb.
 
 **THIS IS A WORK IN PROGRESS**
 
-*Actual data transfer is not implemented yet. At this stage, the device is recognized by Linux and i2c-detect works.*
+*Very little testing done so far, using i2c_tools under Linux with a MCP9808 sensor.*
 
 "Attach any I2C client chip (thermo sensors, AD converter, displays, relays driver, ...) to your PC via USB ... quick, easy and cheap! Drivers for Linux, Windows and MacOS available." (from the READ.ME file in i2c-tiny-usb). 
 
@@ -13,7 +13,13 @@ After starting this project I found a similar one from Nicolai Electronics: http
 
 Following i2c-tiny-usb, all USB transfers are done via the control endpoint.
 
-As the I2C peripheral in TP2040/RP2350 does not support zero-len transfers, I2C operations are done through bit-banging.
+As the I2C peripheral in TP2040/RP2350 does not support zero-length transfers, I2C operations are done through bit-banging.
+
+You can enable debug printing (through UART) in CMakeLists.txt 
+
+```pico_enable_stdio_uart(i2cpicousb 0)```
+
+but this will slow down the firmware.
 
 ## Compiling the Firmware
 

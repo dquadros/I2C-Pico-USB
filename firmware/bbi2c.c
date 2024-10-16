@@ -2,7 +2,7 @@
  * @file bbi2c.c
  * @author Daniel Quadros
  * @brief Bit-banged I2C operations
- * @date 2024-10-14
+ * @date 2024-10-15
  * 
  * As the RP2040/RP2350 hardware I2C does not support zero byte transfers
  * (used by default by i2cdetect from i2c-tools), we handle I2C operations
@@ -26,6 +26,12 @@
 
 #include "hwconfig.h"
 #include "bbi2c.h"
+
+#if LIB_PICO_STDIO_UART
+#define dbg_printf(...) printf(__VA_ARGS__)
+#else
+#define dbg_printf(...)
+#endif
 
 #define LOW  false
 #define HIGH true
@@ -101,9 +107,7 @@ void bbi2c_set_clock(uint16_t clock_period_us) {
       clock_delay_before++;
     }
   }
-  #if LIB_PICO_STDIO_UART
-  printf("Delays: original=%d before=%d after=%d\n", clock_period_us, clock_delay_before, clock_delay_after);
-  #endif
+  dbg_printf("Delays: original=%d before=%d after=%d\n", clock_period_us, clock_delay_before, clock_delay_after);
 }
 
 // Inits I2C
@@ -139,7 +143,7 @@ void bbi2c_start(void) {
 }
 
 /* i2c repeated start condition */
-void bbi2c_repstart(void) 
+void bbi2c_restart(void) 
 {
   /* scl, sda may not be high */
   bbi2c_set_sda(HIGH);
@@ -156,7 +160,7 @@ void bbi2c_stop(void) {
   bbi2c_set_sda(HIGH);
 }
 
-/* Write a byte, returns true if acknoledge */
+/* Write a byte, returns true if acknowledge */
 bool bbi2c_write(uint8_t b) {
   for (int i = 0; i < 8; i++) {
     bbi2c_set_sda(b & 0x80);
@@ -184,7 +188,7 @@ uint8_t bbi2c_read(bool last) {
     bbi2c_set_scl(HIGH);
     b <<= 1;
     if (bbi2c_get_sda()) {
-      b != 1;
+      b |= 1;
     }
     bbi2c_set_scl(LOW);
   }
