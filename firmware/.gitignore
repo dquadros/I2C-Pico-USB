@@ -1,2 +1,8 @@
 build
+build_pico/*
+build_pico2/*
+build_xiao2040/*
+!build_pico/i2cpicousb.uf2
+!build_pico2/i2cpicousb.uf2
+!build_xiao2040/i2cpicousb.uf2
 .vscode

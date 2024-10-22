@@ -13,7 +13,7 @@ As the I2C peripheral in TP2040/RP2350 does not support zero-length transfers, I
 
 You can enable debug printing (through UART) in CMakeLists.txt 
 
-```pico_enable_stdio_uart(i2cpicousb 0)```
+```pico_enable_stdio_uart(i2cpicousb 1)```
 
 but this will slow down the firmware.
 
@@ -32,10 +32,16 @@ The hardware used for testing were:
 	* AT24C32A EEPROM
 	* PCF8583 clock/calendar with 240 byte RAM
 
+AT24C32A and PCF8583 have the same default address, you must select an alternate address in one of them to connect both to the same I2C bus.
+
 ### Linux
 
 * ic2-tools
 * ti2c.c: C program using the I2C dev interface (https://www.kernel.org/doc/Documentation/i2c/dev-interface)
+
+### Windows
+
+Testing done using libusb-win32 and Python.
 
 ## Compiling the Firmware
 
@@ -45,14 +51,15 @@ The firmware was developed with the official Raspberry Pi Pico SDK v2.0.0. The R
 
 * clone this repository (```git clone https://github.com/dquadros/I2C-Pico-USB.git```)
 * create a ```build``` subdiretory inside the ```I2C-Pico-USB``` directory
-* in the ```build``` directory execute ```cmake ..``` (```cmake ..  -G "NMake Makefiles``` under windows)
+* in Windows, you need to open a "Visual Studio Developer Command Prompt" for the next commands
+* in the ```build``` directory execute ```cmake ..``` (```cmake .. -G "NMake Makefiles" -DPICO_BOARD=pico``` under windows)
 * execute ```make``` (```nmake``` under Windows)
 
 A I2C-Pico-USB.uf2 file will be created, this file should be loaded into the RP2040 board
 
 ### Raspberry Pi Pico 2
 
-Add the ```-DPICO_BOARD=pico2``` option to the cmake command in the instructions above.
+Change the -D option to  ```-DPICO_BOARD=pico2``` in the cmake command in the instructions above.
 
 ### Other Boards
 
@@ -106,7 +113,7 @@ You will get first a warning that probing for i2c devices can have bad effects o
 
 The ```i2c-get``` and ```i2c-put``` commands can be used to read and write to and from I2C devices that use the concept of registers, where a read is preceded by a write of the register's address (form 0x00 to 0xFF).
 
-The following examples are for accessing four bytes, starting at address 0x40, in PCF8583 clock/calendar's ARM with the default I2C address of 0x50:
+The following examples are for accessing four bytes, starting at address 0x40, in PCF8583 clock/calendar's RAM with the default I2C address of 0x50:
 
 ```
 sudo i2cset n 0x50 0x40 1 2 3 4 i 

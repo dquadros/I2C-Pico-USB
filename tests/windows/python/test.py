@@ -65,6 +65,7 @@ def i2c_read(addr, flags, len):
     return dev.ctrl_transfer(REQ_IN, CMD_I2C_IO | flags, I2C_M_RD, addr, len)
 
 EEPROM_ADDR = 0x50
+PCF8583_ADDR = 0x51
 MCP9808_ADDR = 0x18
 
 def eeprom_test():
@@ -83,16 +84,50 @@ def eeprom_test():
     print ('Original Content: ')
     print (''.join(['{:02X} '.format(x) for x in ret]))
 
+    # change memory content
     data = [0x00, 0x20]
     data.extend([(x+1)%256 for x in ret])
     i2c_write(EEPROM_ADDR, CMD_I2C_BEGIN|CMD_I2C_END, bytearray(data))
     sleep(0.1)
 
+    # read contents of 10 bytes starting from 0x20
     i2c_write(EEPROM_ADDR, CMD_I2C_BEGIN, bytearray([0x00, 0x20]))
     ret = i2c_read(EEPROM_ADDR, CMD_I2C_END, 10)
     print ('New Content: ')
     print (''.join(['{:02X} '.format(x) for x in ret]))
-    print ()
+
+def pcf8583_test():
+    print ('PCF8583 TEST')
+
+    # check if  PCF8583 present
+    try:
+        i2c_write(PCF8583_ADDR, CMD_I2C_BEGIN|CMD_I2C_END, '')
+    except:
+        print ('PCF8583 not found')
+        return
+
+    # initialize RAM area to test
+    data = [0x45]
+    data.extend([x for x in range(1, 17)])
+    i2c_write(PCF8583_ADDR, CMD_I2C_BEGIN|CMD_I2C_END, bytearray(data))
+
+    # read contents of 16 bytes starting from 0x45
+    i2c_write(PCF8583_ADDR, CMD_I2C_BEGIN, bytearray([0x45]))
+    ret = i2c_read(PCF8583_ADDR, CMD_I2C_END, 16)
+    print ('Original Content: ')
+    print (''.join(['{:02X} '.format(x) for x in ret]))
+
+    # change memory content
+    data = [0x45]
+    data.extend([(x+3)%256 for x in ret])
+    i2c_write(PCF8583_ADDR, CMD_I2C_BEGIN|CMD_I2C_END, bytearray(data))
+
+    # read contents of 16 bytes starting from 0x45
+    i2c_write(PCF8583_ADDR, CMD_I2C_BEGIN, bytearray([0x45]))
+    ret = i2c_read(PCF8583_ADDR, CMD_I2C_END, 16)
+    print ('New Content: ')
+    print (''.join(['{:02X} '.format(x) for x in ret]))
+
 
 def mcp9808_test():
     print ('MCP9808 SENSOR TEST')
@@ -123,10 +158,12 @@ def mcp9808_test():
     ret = i2c_read(MCP9808_ADDR, CMD_I2C_END, 2)
     temp = (((ret[0] << 8) + ret[1]) >> 2) / 4
     print ('Upper limit = {} C - {}'.format(temp, 'OK' if temp==33.5 else 'ERROR'))
-    print ()
     
 
 eeprom_test()
+print ()
 mcp9808_test()
-
+print ()
+pcf8583_test()
+print ()
 
