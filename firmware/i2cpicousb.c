@@ -39,6 +39,15 @@
 #define dbg_printf(...)
 #endif
 
+// Uncomment to send to serial the transfered data
+//#define DEBUG_DATA
+
+#if DEBUG_DATA
+#define data_printf(...) printf(__VA_ARGS__)
+#else
+#define data_printf(...)
+#endif
+
 /* the currently support capability is quite limited */
 const unsigned long func = I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART;
 
@@ -207,10 +216,12 @@ static bool usb_i2c_setup(uint8_t rhport, tusb_control_request_t const* req) {
   uint8_t addr = ( cmd.addr << 1 );
   if (cmd.flags & I2C_M_RD )
     addr |= 1;  
+  data_printf("Addr = %02X\n", addr);
   if (bbi2c_write(addr)) {
     status = STATUS_ADDRESS_ACK;
     if ((cmd.cmd & CMD_I2C_END) && (cmd.len == 0)) {
       // pediu para enviar stop e não tem dados
+      dbg_printf("STOP \n");
       bbi2c_stop();  
     }
   } else {
@@ -239,7 +250,9 @@ static bool usb_i2c_setup(uint8_t rhport, tusb_control_request_t const* req) {
       for (int i = 0; i < len; i++) {
         to_read--;
         reply_buf[i] = bbi2c_read(to_read == 0);
+        data_printf("%02X ",reply_buf[i]);
       }
+      data_printf("\n");
       if (!tud_control_xfer(rhport, req, reply_buf, len)) {
         bbi2c_stop();
         dbg_printf("Error in tud_control_xfer\n");
@@ -247,6 +260,7 @@ static bool usb_i2c_setup(uint8_t rhport, tusb_control_request_t const* req) {
       }
     }
     if (cmd.cmd & CMD_I2C_END) {
+      dbg_printf("STOP \n");
       bbi2c_stop();
     }
     return true;
@@ -272,13 +286,16 @@ static bool usb_i2c_data() {
     }
     dbg_printf("Writing %d\n", len);
     for (int i = 0; i < len; i++) {
+      data_printf("%02X ",reply_buf[i]);
       if (!bbi2c_write(reply_buf[i])) {
         bbi2c_stop();
         dbg_printf("Error in bbi2c_write\n");
         return false;
       }
     }
+    data_printf("\n");
     if (cmd.cmd & CMD_I2C_END) {
+      dbg_printf("STOP \n");
       bbi2c_stop();
     }
   }
